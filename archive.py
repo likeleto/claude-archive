@@ -266,7 +266,9 @@ def main():
             data, _ = load_source(args.data)
             org = validate_organization(read_json(args.organization), data) if args.organization else organization(args.data, data)
             result = report(data, org)
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        # ASCII escapes keep CLI JSON portable across Windows pipe encodings.
+        # File storage remains UTF-8; JSON readers recover the original text.
+        print(json.dumps(result, ensure_ascii=True, indent=2))
     except (ValueError, OSError, KeyError, zipfile.BadZipFile) as e:
         parser.exit(1, "Error: " + str(e) + "\n")
 

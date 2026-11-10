@@ -187,6 +187,24 @@ class PipelineTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             migrate.plan(self.source, [ident("garden")], [])
 
+    def test_cli_json_preserves_unicode_with_legacy_stdout_encoding(self):
+        self.build()
+        env = dict(os.environ, PYTHONIOENCODING="cp1252:strict")
+        commands = [
+            ("archive.py", ["inspect", "--data", str(self.output)]),
+            ("migrate.py", ["--archive", str(self.output), "--project", ident("garden")]),
+        ]
+        for script, args in commands:
+            with self.subTest(script=script):
+                result = subprocess.run([sys.executable, str(archive.ROOT / script), *args],
+                                        capture_output=True, env=env)
+                self.assertEqual(result.returncode, 0, result.stderr.decode("cp1252"))
+                report = json.loads(result.stdout.decode("cp1252"))
+                if script == "archive.py":
+                    self.assertEqual(report["projects"][0]["name"], "Claude Archive · Начните здесь")
+                else:
+                    self.assertEqual(report["conversations"][0]["title"], "01 · Что такое Claude Archive?")
+
     def test_installed_skills_run_without_original_repository(self):
         self.build()
         for name in ("claude-archive", "claude-to-codex"):
@@ -237,7 +255,7 @@ class PipelineTests(unittest.TestCase):
                     session = params["migrationItems"][0]["details"]["sessions"][0]
                     path = Path(session["path"])
                     assert path.is_relative_to(Path(self.env["HOME"]))
-                    records = [json.loads(line) for line in path.read_text().splitlines()]
+                    records = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
                     tid = str(uuid_for_test(len(self.imported)))
                     self.imported[tid] = records
                     self.last_tid = tid

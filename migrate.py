@@ -313,7 +313,8 @@ def main():
         if args.trial or args.apply:
             execute(preview, data, files, org, chats, args.output, trial=args.trial)
         else:
-            print(json.dumps(preview, ensure_ascii=False, indent=2))
+            # Match archive CLI output even when stdout uses a legacy code page.
+            print(json.dumps(preview, ensure_ascii=True, indent=2))
     except (ValueError, OSError, KeyError, RuntimeError) as e:
         parser.exit(1, "Error: " + str(e) + "\n")
 
