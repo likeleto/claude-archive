@@ -34,6 +34,12 @@ def build_demo_site(output):
         html = html.replace('href="/', 'href="./').replace('src="/', 'src="./')
         html = html.replace('<script src="./data.js">', '<script src="./demo-data.js"></script><script src="./data.js">')
         html = html.replace('<title>Claude · Архив</title>', '<title>Claude Archive · Интерактивное демо</title>')
+        html = html.replace('</aside>', '<footer class="demo-links"><a class="btn" data-variant="outline" data-size="sm" '
+                            'href="https://github.com/likeleto/claude-archive/" target="_blank" rel="noopener noreferrer">'
+                            'GitHub <span aria-hidden="true">↗</span></a></footer></aside>')
+        with (output / "style.css").open("a", encoding="utf-8") as css:
+            css.write('\n.demo-links { flex-shrink:0; padding-top:12px; border-top:1px solid var(--border); }\n'
+                      '.demo-links .btn { width:100%; text-decoration:none; }\n')
         (output / "index.html").write_text(html, encoding="utf-8")
         payload = json.dumps({"fictional": True, "index": index, "conversations": data["conversations"]}, ensure_ascii=False).replace("<", "\\u003c")
         (output / "demo-data.js").write_text("window.CLAUDE_ARCHIVE_DEMO=" + payload + ";\n", encoding="utf-8")
