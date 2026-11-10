@@ -1,0 +1,25 @@
+# Exports, generated archives, migration state and local configuration are private.
+*.zip
+*.json
+*.jsonl
+*.log
+*.sqlite*
+*.db
+*.png
+!docs/demo.png
+*.jpg
+*.pdf
+.env*
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+data/
+output/
+demo-data/
+demo-archive/
+demo-migration/
+site-demo/
+workspaces/
+trial-runtime/
+.migration.lock
